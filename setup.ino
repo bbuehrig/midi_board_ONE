@@ -7,7 +7,17 @@
  *	@date		04/11/13
  *  license		GPL axefx.de - 2013
  */
- 
+
+
+
+/*
+buttons[2] = Button(  5,  15,  "PC",  2,  0, 0);
+buttons[3] = Button(  6,  16,  "PC",  3,  0, 0);
+buttons[4] = Button(  7,  17,  "CC",  20,  127, 0);
+buttons[5] = Button(  8,  18,  "CC",  21,  127, 0);
+buttons[6] = Button(  9,  19,  "CC",  22,  127, 0);
+buttons[7] = Button( 10,  20,  "CC",  23,  127, 0);
+*/
 
 
 // Pin-Definitions

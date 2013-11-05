@@ -8,26 +8,28 @@
  *  license		GPL axefx.de - 2013
  */
 
-#include "Arduino.h"
 #include "Button.h"
   
+Button::Button() {
+}
 
-Button::Button(int btnPin, int ledPin) {
+
+Button::Button(byte    btnPin, 
+               byte    ledPin,
+               String  btnFunction,
+               byte    ctrlNo,
+               byte    valHigh,
+               byte    valLow) {
+                 
   _btnPin = btnPin;
   _ledPin = ledPin;
-}
-  
-  
-void Button::setButtonFunction(String btnFunction) {
   _btnFunction = btnFunction;
-}
-
-void Button::setValueHigh(int valHigh) {
+  _ctrlNo = ctrlNo;
   _valHigh = valHigh;
-}
-
-void Button::setValueLow(int valLow) {
   _valLow = valLow;
+
 }
 
 
+Button::~Button() {
+}
