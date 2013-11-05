@@ -20,7 +20,7 @@ Setup
 -----
 To Setup an configure your personal board, you have to modify some variables.
 
-=== setup.h
+### setup.h
 The file setup.h defines the most important global parameters. There are thre parameters to configure your base settings of your MIDI-Board:
 
 * MAX_BUTTONS
@@ -31,8 +31,7 @@ The file setup.h defines the most important global parameters. There are thre pa
 	This is the Preset/MIDI-Program-Number that will send by starting up your board
 
 
-Button-Definition
------------------
+### Button-Definition
 To define, what kind of messages the buttons will send, you have to go to the main file "midi_board_ONE.ino". At the moment you can find and change the button-definitions in this file. In the "setup()" function there are some lines like:
 
 	buttons[0] = new Button(    3,       13,      "PC",    0,      0,     0,        LOW );
