@@ -31,7 +31,7 @@
 
 
 // ==== Button-Array for iteration
-Button *buttons[MAX_BUTTONS - 1];
+Button *buttons[MAX_BUTTONS];
 
 
 
