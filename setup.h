@@ -19,4 +19,4 @@
 
 /** Sending PC-Message at running the program. This will send a PC for a specific Preset
  *  while starting your MIDI-Board */
-#define START_PROGRAM_NO       0           // Start Program-Preset-No at initialization
+#define START_PROGRAM_NO       2           // Start Program-Preset-No at initialization

@@ -11,8 +11,6 @@
  *  license		GPL axefx.de - 2013
  */
  
- 
-
 // ==== Setup-File: Edit for you own MIDI-Board
 #include "setup.h"
 
@@ -21,6 +19,8 @@
 
 // ==== 3rd Party Libraries
 #include <MIDI.h>              // Arduino-MIDI-Library
+
+
 
 
 
@@ -53,8 +53,9 @@ class Button {
   
   private:
     // Private Attributes
-    byte _actState;          // Actual Button-State:  LOW - unpressed    HIGH - pressed
-    byte _ctrlState;         // Controller State:     LOW - unset        HIGH - set
+    byte _actState;                  // Actual Button-State:  LOW - unpressed    HIGH - pressed
+    byte _ctrlState;                 // Controller State:     LOW - unset        HIGH - set
+
     
     // Private Functions
     void sendCC(byte state, byte value);
@@ -65,3 +66,7 @@ class Button {
 
 
 #endif
+
+
+
+

@@ -1,14 +1,15 @@
 /**
- *  @file		button.cpp
+ *  @file		Button.cpp
  *  Project		axefx.de MIDI Borad
  *	@brief		single class representing one Button
- *	@version	1.0.0
+ *	@version	1.0.1
  *  @author		Bastian Buehrig
- *	@date		05/11/13
+ *	@date		06/11/13
  *  license		GPL axefx.de - 2013
  */
 
 #include "Button.h"
+
 
 /** Set Class-Variable to Init-Program-Number */
 byte Button::PRGNO = START_PROGRAM_NO;
@@ -22,6 +23,7 @@ byte Button::PRGNO_LED = 0;
  *
  */  
 Button::Button() {
+
 }
 
 
@@ -60,11 +62,12 @@ Button::Button(byte    btnPin,           /** Pin-Number where the switch is conn
   
   // Set Pin-Mode für Switch and LED
   pinMode(_btnPin, INPUT);
+  digitalWrite(_btnPin, INPUT_PULLUP);    // Pullup-Resistor
   pinMode(_ledPin, OUTPUT);
 
 
   // Set initial-Button-State
-  _actState = LOW;
+  _actState = HIGH;
   
   
   // Set initial LED-State
@@ -123,14 +126,14 @@ Button::~Button() {
 void Button::checkState() {
   // Check if Button-State is different from the call before
   byte actState = digitalRead(_btnPin);
-  
+
   if(_actState != actState) {
     // Button state was changed --> Do something!
     // Save aktcual Button State
     _actState = actState;
     
     
-    if(actState == HIGH) {
+    if(actState == LOW) {
       // Only do, if Button is pressed!
       //
       // Check Button Function
@@ -184,15 +187,35 @@ void Button::sendCC(byte state, byte value) {
  *
  */  
 void Button::sendPC(byte prgNo) {
-  MIDI.sendProgramChange(prgNo, MIDI_CHANNEL);
+  // Only send PC, if it wasn't already sent
+  if(Button::PRGNO != prgNo) {
+    MIDI.sendProgramChange(prgNo, MIDI_CHANNEL);
   
-  // Activate actual LED
-  digitalWrite(_ledPin, HIGH);
+    // Activate actual LED
+    digitalWrite(_ledPin, HIGH);
   
-  // Deactivate last PC-LED
-  digitalWrite(Button::PRGNO_LED, LOW);
+    // Deactivate last PC-LED
+    digitalWrite(Button::PRGNO_LED, LOW);
   
-  // Save Program Number and LED-Pin
-  Button::PRGNO = prgNo;
-  Button::PRGNO_LED = _ledPin;
+    // Save Program Number and LED-Pin
+    Button::PRGNO = prgNo;
+    Button::PRGNO_LED = _ledPin;
+  }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -35,23 +35,22 @@ Button *buttons[MAX_BUTTONS];
 
 
 
+
 // ====
 void setup() {
   // MIDI-Initialising
   MIDI.begin(MIDI_CHANNEL);
   
-  
   // Button-Definitions:
   //                      Button-Pin   LED-Pin  Funkt.  CC/PC   High  Low,  init. Ctrl. State
-  buttons[0] = new Button(    3,       13,      "PC",    0,      0,     0,        LOW );
-  buttons[1] = new Button(    4,       14,      "PC",    0,      0,     0,        LOW );
-  buttons[2] = new Button(    5,       15,      "PC",    2,      0,     0,        LOW );
-  buttons[3] = new Button(    6,       16,      "PC",    3,      0,     0,        LOW );
-  buttons[4] = new Button(    7,       17,      "CC",   20,    127,     0,        LOW );
-  buttons[5] = new Button(    8,       18,      "CC",   21,    127,     0,        LOW );
-  buttons[6] = new Button(    9,       19,      "CC",   22,    127,     0,       HIGH );
-  buttons[7] = new Button(   10,       20,      "CC",   23,    127,     0,       HIGH );
-  
+  buttons[0] = new Button(    8,       28,      "PC",    0,      0,     0,        LOW );
+  buttons[1] = new Button(    9,       29,      "PC",    1,      0,     0,        LOW );
+  buttons[2] = new Button(   10,       30,      "PC",    2,      0,     0,        LOW );
+  buttons[3] = new Button(   11,       31,      "PC",    3,      0,     0,        LOW );
+  buttons[4] = new Button(   12,       32,      "CC",   20,    127,     0,        LOW );
+  buttons[5] = new Button(   13,       33,      "CC",   21,    127,     0,        LOW );
+  buttons[6] = new Button(   14,       34,      "CC",   22,    127,     0,       HIGH );
+  buttons[7] = new Button(   15,       35,      "CC",   23,    127,     0,       HIGH );
 
   
 
