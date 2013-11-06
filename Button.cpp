@@ -61,8 +61,7 @@ Button::Button(byte    btnPin,           /** Pin-Number where the switch is conn
   
   
   // Set Pin-Mode für Switch and LED
-  pinMode(_btnPin, INPUT);
-  digitalWrite(_btnPin, INPUT_PULLUP);    // Pullup-Resistor
+  pinMode(_btnPin, INPUT_PULLUP);
   pinMode(_ledPin, OUTPUT);
 
 
