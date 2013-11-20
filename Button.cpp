@@ -2,26 +2,20 @@
  *  @file		Button.cpp
  *  Project		axefx.de MIDI Borad
  *	@brief		single class representing one Button
- *	@version	1.0.1
+ *	@version	1.0.3
  *  @author		Bastian Buehrig
- *	@date		06/11/13
+ *	@date		14/11/13
  *  license		GPL axefx.de - 2013
  */
 
 #include "Button.h"
 
 
-/** Set Class-Variable to Init-Program-Number */
-byte Button::PRGNO = START_PROGRAM_NO;
-byte Button::PRGNO_LED = 0;
 
-
-
- 
 /**
  * Standard-Constructor
  *
- */  
+ */
 Button::Button() {
 
 }
@@ -33,33 +27,20 @@ Button::Button() {
  *
  * @param btnPin          Pin-Number where the switch is connected
  * @param ledPin          Pin-Number where the LED is connected
- * @param btnFunction     Function of the switch: 
-                             * PC - Program Change
-                             * CC - Controller Change
- * @param ctrlNo          Controller- or Program Number, which will be send
- * @param valHigh         High-Value, send at Controller-Activation
- * @param valLow          Low-Valuem send at Controller-Deaktivation
- * @param initCtrlState   Initial Controller State (Low/High)
- */  
+ */
 Button::Button(byte    btnPin,           /** Pin-Number where the switch is connected */
-               byte    ledPin,           /** Pin-Number where the LED is connected */
-               String  btnFunction,      /** Function of the switch: PC - Program Change    CC - Controller Change */
-               byte    ctrlNo,           /** Controller- or Program Number, which will be send */
-               byte    valHigh,          /** High-Value, send at Controller-Activation */
-               byte    valLow,           /** Low-Valuem send at Controller-Deaktivation */
-               byte    initCtrlState     /** Initial Controller State (Low/High) */
-              ) {  
-        
+byte    ledPin            /** Pin-Number where the LED is connected */
+) {  
+
   // Setting instance-variables         
   _btnPin = btnPin;
   _ledPin = ledPin;
-  _btnFunction = btnFunction;
-  _ctrlNo = ctrlNo;
-  _valHigh = valHigh;
-  _valLow = valLow;
-  _initCtrlState = initCtrlState;
-  
-  
+
+  // Initialise quantity of MIDI-Messages and LED-Groups
+  _messagesQty = 0;
+  _ledGroupQty = 0;
+
+
   // Set Pin-Mode für Switch and LED
   pinMode(_btnPin, INPUT_PULLUP);
   pinMode(_ledPin, OUTPUT);
@@ -67,41 +48,7 @@ Button::Button(byte    btnPin,           /** Pin-Number where the switch is conn
 
   // Set initial-Button-State
   _actState = HIGH;
-  
-  
-  // Set initial LED-State
-  if(_btnFunction == "PC") {
-    // Program Change
-    if(_ctrlNo == Button::PRGNO) {
-      digitalWrite(_ledPin, HIGH);
-      
-      // Send PC
-      MIDI.sendProgramChange(_ctrlNo, MIDI_CHANNEL);
-      
-      // Save Program-Number to Class-Variable
-      Button::PRGNO = _ctrlNo;
-      
-      // Save LED-Pin to Class-Variable
-      Button::PRGNO_LED = _ledPin;
-      
-    } else {
-      digitalWrite(_ledPin, LOW);
-    }
-  }
-  
-  
-  if(_btnFunction == "CC") {
-    // Controller Change
-    if(_initCtrlState == LOW) {
-      
-      sendCC(LOW, _valLow);
 
-    } else {
-
-      sendCC(HIGH, _valHigh);
-
-    }
-  }
 }
 
 
@@ -109,7 +56,7 @@ Button::Button(byte    btnPin,           /** Pin-Number where the switch is conn
 /**
  * Standard-Destructor
  *
- */  
+ */
 Button::~Button() {
 }
 
@@ -121,7 +68,7 @@ Button::~Button() {
  * Button-Configuration will send a PC or CC Message
  *
  * @return    void
- */  
+ */
 void Button::checkState() {
   // Check if Button-State is different from the call before
   byte actState = digitalRead(_btnPin);
@@ -130,91 +77,81 @@ void Button::checkState() {
     // Button state was changed --> Do something!
     // Save aktcual Button State
     _actState = actState;
-    
-    
-    if(actState == LOW) {
+
+
+    if(actState == LOW) {    
       // Only do, if Button is pressed!
       //
-      // Check Button Function
-      //
-      // Program Change Button
-      if(_btnFunction == "PC") {
-        sendPC(_ctrlNo);
-      }
 
-      // Controller Change Button
-      if(_btnFunction == "CC") {
-        if(_ctrlState == LOW) {
-
-          sendCC(HIGH, _valHigh);
-
-        } else {
-
-          sendCC(LOW, _valLow);
-
+      // First switch off all LEDs of the LED-Group!
+      if(_ledGroupQty > 0 ) {
+        for(byte i = 0; i < _ledGroupQty; i++) {
+          Serial.println(_ledGroup[i]);
+          digitalWrite(_ledGroup[i], LOW);
         }
       }
 
+
+      // Iterate all MIDI-Messages
+      for (byte i = 0; i < _messagesQty; i++) {  
+
+        // Send MIDI-Messages
+        if(_messages[i]._isMaster) {
+          // It is a master-Button --> LED-Control!
+          boolean rc = _messages[i].sendMIDI();
+
+          // Checking LED-Status
+          if(rc) {
+            // LED on!
+            digitalWrite(_ledPin, HIGH);
+
+          } 
+          else {
+            // LED off!
+            digitalWrite(_ledPin, LOW);
+
+          };
+
+        } 
+        else {
+          // Only a slave Button --> Send MIDI-Message and don't control any LED
+          _messages[i].sendMIDI();
+        }
+
+      }
     }
   }
-  
+
 }
 
 
 
 /**
- * This Method sends a Controller-Message and will 
- * Activate/Deactivate concurrent LED.
+ * This method will add an array of MIDI-Messages to the Button for Itereation.
  *
- * @params state    Button-State for switchen the LED
- * @params value    Controller-Value which will be sent
+ * Button-Configuration will send a PC or CC Message
  *
- */  
-void Button::sendCC(byte state, byte value) {
-  digitalWrite(_ledPin, state);
-  MIDI.sendControlChange(_ctrlNo, value, MIDI_CHANNEL);
-  _ctrlState = state;
+ * @param      midiMessage[]    Array of MIDI-Messages
+ * @param      messagesQty      size of the array to calculate quantity of array-elements
+ */
+void Button::addMessages(MIDIMessage midiMessage[], byte messagesQty) {
+  // Set instance-variables
+  _messages = midiMessage;
+  _messagesQty = messagesQty / sizeof(MIDIMessage);
 }
-
-
 
 /**
- * This Method sends a Programm-Change-Message and will 
- * Activate/Deactivate concurrent LEDs.
+ * This Method adds a full LED-Group to the actual Button
+ * for disable the LEDS at any change
  *
- * @params prgNo    Program-Number to send with PC
+ * @param ledGroup      Array of all LED-Pins
+ * @param messagesQty   Size of the array to calculate quantity of the array-elements
  *
- */  
-void Button::sendPC(byte prgNo) {
-  // Only send PC, if it wasn't already sent
-  if(Button::PRGNO != prgNo) {
-    MIDI.sendProgramChange(prgNo, MIDI_CHANNEL);
-  
-    // Activate actual LED
-    digitalWrite(_ledPin, HIGH);
-  
-    // Deactivate last PC-LED
-    digitalWrite(Button::PRGNO_LED, LOW);
-  
-    // Save Program Number and LED-Pin
-    Button::PRGNO = prgNo;
-    Button::PRGNO_LED = _ledPin;
-  }
+ */
+void Button::setLEDGroup(byte ledGroup[], byte ledGroupQty) {
+  // Set Instance-variables
+  _ledGroup = ledGroup;
+  _ledGroupQty = ledGroupQty / sizeof(byte);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
