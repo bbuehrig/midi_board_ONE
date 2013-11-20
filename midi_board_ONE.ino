@@ -53,7 +53,7 @@ Button buttons[] = {
   Button(   12,       32 ),
   Button(   13,       33 ),
   Button(   14,       34 ),
-  Button(   15,       35 ),    
+  Button(   15,       35 )    
 };
 
 
